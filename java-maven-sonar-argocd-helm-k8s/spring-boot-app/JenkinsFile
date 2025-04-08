@@ -1,10 +1,6 @@
 pipeline {
-  agent {
-    docker {
-      image 'maven:3.8.6-eclipse-temurin-17'   // ✅ Updated to Java 17 compatible Maven agent
-      args '--user root -v /var/run/docker.sock:/var/run/docker.sock'
-    }
-  }
+  agent any  // <<--- Change this line
+
 
   environment {
     SONAR_URL = "http://3.218.156.230:9000"             // ✅ Correct SonarQube URL
