@@ -1,22 +1,22 @@
 pipeline {
   agent {
     docker {
-      image 'abhishekf5/maven-abhishek-docker-agent:v1'
+      image 'maven:3.8.6-eclipse-temurin-17'   // ✅ Updated to Java 17 compatible Maven agent
       args '--user root -v /var/run/docker.sock:/var/run/docker.sock'
     }
   }
 
   environment {
-    SONAR_URL = "http://3.218.156.230:9000"             // your SonarQube server
-    GIT_REPO_NAME = "Jenkins_preparations_for_study"    // your GitHub repo
-    GIT_USER_NAME = "PavanKumar-sudo"                   // your GitHub username
+    SONAR_URL = "http://3.218.156.230:9000"             // ✅ Correct SonarQube URL
+    GIT_REPO_NAME = "Jenkins_preparations_for_study"    // ✅ Your GitHub repo
+    GIT_USER_NAME = "PavanKumar-sudo"                   // ✅ Your GitHub username
   }
 
   stages {
     stage('Checkout') {
       steps {
         sh 'echo "Checking out the code..."'
-        // If SCM already checkout, no manual git needed.
+        // No manual git clone needed. Jenkins handles SCM checkout automatically.
       }
     }
 
@@ -43,8 +43,8 @@ pipeline {
 
     stage('Build and Push Docker Image') {
       environment {
-        DOCKER_IMAGE = "pavankumar23/ultimate-cicd:${BUILD_NUMBER}" 
-        REGISTRY_CREDENTIALS = credentials('docker-cred')          
+        DOCKER_IMAGE = "pavankumar23/ultimate-cicd:${BUILD_NUMBER}"  // ✅ Your DockerHub repo
+        REGISTRY_CREDENTIALS = credentials('docker-cred')           // ✅ Your DockerHub credentials
       }
       steps {
         script {
@@ -64,9 +64,8 @@ pipeline {
       steps {
         withCredentials([string(credentialsId: 'github', variable: 'GITHUB_TOKEN')]) {
           sh '''
-            git config user.email "pavanvinjamuri212@gmail.com"  // 👈 Update to your GitHub email
-            git config user.name "PavanKumar-sudo"
-            BUILD_NUMBER=${BUILD_NUMBER}
+            git config --global user.email "pavanvinjamuri212@gmail.com"
+            git config --global user.name "PavanKumar-sudo"
             sed -i "s/replaceImageTag/${BUILD_NUMBER}/g" java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests/deployment.yml
             git add java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests/deployment.yml
             git commit -m "Update deployment image to version ${BUILD_NUMBER}"
